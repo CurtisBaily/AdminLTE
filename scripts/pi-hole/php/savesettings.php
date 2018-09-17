@@ -52,6 +52,14 @@ function validDomainWildcard($domain_name)
 	return ( $validChars && $lengthCheck && $labelLengthCheck ); //length of each label
 }
 
+function validFQDN($domain_name)
+{
+	$validChars = preg_match("/^([a-z0-9]+(-[a-z0-9]+)*\.)+[a-z]{2,}$/i", $domain_name);
+	$lengthCheck = preg_match("/^.{1,253}$/", $domain_name);
+	$labelLengthCheck = preg_match("/^[^\.]{1,63}(\.[^\.]{1,63})*$/", $domain_name);
+	return ( $validChars && $lengthCheck && $labelLengthCheck ); //length of each label
+}
+
 function validMAC($mac_addr)
 {
   // Accepted input format: 00:01:02:1A:5F:FF (characters may be lower case)
@@ -89,6 +97,37 @@ function readStaticLeasesFile()
 		{
 			// dhcp-host=hostname,IP - no MAC
 			array_push($dhcp_static_leases,["hwaddr"=>"", "IP"=>$one, "host"=>$mac]);
+		}
+	}
+	return true;
+}
+
+$dns_static_hosts = array();
+function readDNSStaticHosts()
+{
+	global $dns_static_hosts;
+	$dns_static_hosts = array();
+	$dnsStatic = @fopen('/etc/dnsmasq.d/05-pihole-static-dns.conf', 'r');
+
+	if(!is_resource($dnsStatic))
+		return false;
+
+	while(!feof($dnsStatic))
+	{
+		// Remove any possibly existing variable with this name
+		$line=""; $ipv4=""; $one=""; $two="";
+		$line=trim(fgets($dnsStatic));
+		// Read entry in form of 'address=/host.example.com/192.168.0.1'
+		sscanf($line,"%[^=]=/%[^/]/%[^/]",$type,$fqdn,$ipv4);
+		if(strlen($ipv4) > 0 && validIP($ipv4) && strlen($fqdn) > 0 && validDomain($fqdn) && strlen($type) > 0)
+		{
+			array_push($dns_static_hosts,["value"=>$ipv4, "key"=>$fqdn, "type"=>$type]);
+		}
+		// Read entry in form of 'cname=host.example.com,host.another.com'
+		sscanf($line,"%[^=]=%[^,],%[^,]",$type,$fqdn,$ipv4);
+		if(strlen($ipv4) > 0 && validDomain($ipv4) && strlen($fqdn) > 0 && validDomain($fqdn) && strlen($type) > 0)
+		{
+			array_push($dns_static_hosts,["value"=>$ipv4, "key"=>$fqdn, "type"=>$type]);
 		}
 	}
 	return true;
@@ -293,6 +332,60 @@ function readAdlists()
 					$DNSinterface = "local";
 				}
 				exec("sudo pihole -a -i ".$DNSinterface." -web");
+
+				if(isset($_POST["addHost"]))
+				{
+					$type = $_POST["AddType"];
+					$fqdn = $_POST["AddFqdn"];
+					$ipv4 = $_POST["AddIPv4"];
+
+					if(!validIP($ipv4) && strlen($ipv4) > 0)
+					{
+						$error .= "IP address (".htmlspecialchars($ipv4).") is invalid!<br>";
+					}
+
+					if(!validFQDN($fqdn) && strlen($fqdn) > 0)
+					{
+						$error .= "Host name (".htmlspecialchars($fqdn).") is invalid!<br>";
+					}
+
+					if(strlen($fqdn) == 0 && strlen($ipv4) == 0)
+					{
+						$error .= "You can not omit both the IP address and the host name!<br>";
+					}
+
+					// Test for etc/hosts
+					readDNSStaticHosts();
+					foreach($dns_static_hosts as $host) {
+						if($host["fqdn"] === $fqdn)
+						{
+							$error .= "Entry for (".htmlspeacialchars($fqdn)." already defined!<br>";
+							break;
+						}
+					}
+					if(!strlen($error))
+					{
+						exec("sudo pihole -a addstaticdnd ".$type." ".$fqdn." ".$ipv4);
+						$success .= "Successfully added DNS entry!<br>";
+					}
+					break;
+				}
+				if(isset($_POST["removeHost"]))
+				{
+					$fqdn = $_POST["key"];
+
+					if(!validFQDN($fqdn) && strlen($fqdn) > 0)
+					{
+						$error .= "Host name (".htmlspecialchars($fqdn).") is invalid!<br>";
+					}
+
+					if(!strlen($error))
+					{
+						exec("sudo pihole -a removestaticdnd ".$fqdn);
+						$success .= "Successfully added DNS entry!<br>";
+					}
+					break;
+				}
 
 				// If there has been no error we can save the new DNS server IPs
 				if(!strlen($error))

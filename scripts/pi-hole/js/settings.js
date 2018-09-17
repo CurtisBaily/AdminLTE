@@ -164,6 +164,17 @@ $(document).ready(function() {
 			"scrollX" : true
 		});
 	}
+	if(document.getElementById("DNSStaticEntryTable"))
+	{
+		hostoverridetable = $("#DNSStaticEntryTable").DataTable({
+			dom: "<'row'<'col-sm-12'tr>><'row'<'col-sm-12'i>>",
+			"columnDefs": [ { "bSortable": false, "orderable": false, targets: -1} ],
+			"paging": false,
+			"scrollCollapse": true,
+			"scrollY": "200px",
+			"scrollX" : true
+		});
+	}
     //call draw() on each table... they don't render properly with scrollX and scrollY set... ¯\_(ツ)_/¯
     $("a[data-toggle=\"tab\"]").on("shown.bs.tab", function (e) {
         leasetable.draw();

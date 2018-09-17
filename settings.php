@@ -632,6 +632,7 @@ if (isset($_GET['tab']) && in_array($_GET['tab'], array("sysadmin", "blocklists"
                 <div id="dns" class="tab-pane fade<?php if($tab === "dns"){ ?> in active<?php } ?>">
                     <form role="form" method="post">
                         <div class="row">
+                            <?php readDNSStaticHosts(); ?>
                             <div class="col-lg-6">
                                 <div class="box box-warning">
                                     <div class="box-header with-border">
@@ -847,6 +848,63 @@ if (isset($_GET['tab']) && in_array($_GET['tab'], array("sysadmin", "blocklists"
                                                       </table>
                                                     </div>
                                                 </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="box box-warning">
+                                    <div class="box-header with-border">
+                                        <h3 class="box-title">DNS Resolver Settings</h3>
+                                    </div>
+                                    <div class="box-body">
+                                        <div class="row">
+                                            <div class="col-md-12">
+                                                <label>Static DNS Entries</label>                                                
+                                                <p>Use this section for PiHole to locally resolve DNS queries without querying upstream DNS servers.</p>
+                                                <table id="DNSStaticEntryTable" class="table table-striped table-bordered dt-responsive nowrap"
+                                                    cellspacing="0" width="100%">
+                                                    <thead>
+                                                    <tr>
+                                                        <th>Type</th>
+                                                        <th>FQDN</th>
+                                                        <th>IPv4 address</th>
+                                                        <td></td>
+                                                    </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                        <?php foreach ($dns_static_hosts as $host) { ?>
+                                                        <tr>
+                                                            <td><?php echo $host["type"]; ?></td>
+                                                            <td><?php echo $host["key"]; ?></td>
+                                                            <td><?php echo $host["value"]; ?></td>
+                                                            <td><?php if (strlen($host["key"]) > 0) { ?>
+                                                                <button class="btn btn-danger btn-xs" type="submit" name="removeHost"
+                                                                        value="<?php echo $host["key"]; ?>">
+                                                                    <span class="glyphicon glyphicon-trash"></span>
+                                                                </button>
+                                                                <?php } ?>
+                                                            </td>
+                                                        </tr>
+                                                        <?php } ?>
+                                                    </tbody>
+                                                    <tfoot style="display: table-row-group">
+                                                        <tr>
+                                                            <td>
+                                                                <select name="AddType">
+                                                                    <option value="volvo">address</option>
+                                                                    <option value="saab">cname</option>
+                                                                </select>
+                                                            </td>
+                                                            <td><input type="text" name="AddFqdn"></td>
+                                                            <td><input type="text" name="AddIPv4"></td>
+                                                            <td>
+                                                                <button class="btn btn-success btn-xs" type="submit" name="addHost">
+                                                                    <span class="glyphicon glyphicon-plus"></span>
+                                                                </button>
+                                                            </td>
+                                                        </tr>
+                                                    </tfoot>
+                                                </table>
                                             </div>
                                         </div>
                                     </div>
