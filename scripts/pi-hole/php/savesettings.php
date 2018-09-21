@@ -365,7 +365,7 @@ function readAdlists()
 					}
 					if(!strlen($error))
 					{
-						exec("sudo pihole -a addstaticdnd ".$type." ".$fqdn." ".$ipv4);
+						exec("sudo pihole -a addstaticdns ".$type." ".$fqdn." ".$ipv4);
 						$success .= "Successfully added DNS entry!<br>";
 					}
 					break;
@@ -381,7 +381,7 @@ function readAdlists()
 
 					if(!strlen($error))
 					{
-						exec("sudo pihole -a removestaticdnd ".$fqdn);
+						exec("sudo pihole -a removestaticdns ".$fqdn);
 						$success .= "Successfully added DNS entry!<br>";
 					}
 					break;

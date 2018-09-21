@@ -891,8 +891,8 @@ if (isset($_GET['tab']) && in_array($_GET['tab'], array("sysadmin", "blocklists"
                                                         <tr>
                                                             <td>
                                                                 <select name="AddType">
-                                                                    <option value="volvo">address</option>
-                                                                    <option value="saab">cname</option>
+                                                                    <option value="address">address</option>
+                                                                    <option value="cname">cname</option>
                                                                 </select>
                                                             </td>
                                                             <td><input type="text" name="AddFqdn"></td>
