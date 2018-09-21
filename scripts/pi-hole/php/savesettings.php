@@ -337,11 +337,22 @@ function readAdlists()
 				{
 					$type = $_POST["AddType"];
 					$fqdn = $_POST["AddFqdn"];
-					$ipv4 = $_POST["AddIPv4"];
+					$value = $_POST["AddValue"];
 
-					if(!validIP($ipv4) && strlen($ipv4) > 0)
+					if ($type == "address")
 					{
-						$error .= "IP address (".htmlspecialchars($ipv4).") is invalid!<br>";
+						if(!validIP($value) && strlen($value) > 0)
+						{
+							$error .= "IP address (".htmlspecialchars($value).") is invalid!<br>";
+						}
+					}
+					
+					if($type == "cname")
+					{
+						if(!validFQDN($value) && strlen($value) > 0)
+						{
+							$error .= "Host name (".htmlspecialchars($value).") is invalid!<br>";
+						}
 					}
 
 					if(!validFQDN($fqdn) && strlen($fqdn) > 0)
@@ -349,9 +360,9 @@ function readAdlists()
 						$error .= "Host name (".htmlspecialchars($fqdn).") is invalid!<br>";
 					}
 
-					if(strlen($fqdn) == 0 && strlen($ipv4) == 0)
+					if(strlen($fqdn) == 0 && strlen($value) == 0)
 					{
-						$error .= "You can not omit both the IP address and the host name!<br>";
+						$error .= "You can not omit both the FQDN and the value!<br>";
 					}
 
 					// Test for etc/hosts
@@ -365,7 +376,7 @@ function readAdlists()
 					}
 					if(!strlen($error))
 					{
-						exec("sudo pihole -a addstaticdns ".$type." ".$fqdn." ".$ipv4);
+						exec("sudo pihole -a addstaticdns ".$type." ".$fqdn." ".$value);
 						$success .= "Successfully added DNS entry!<br>";
 					}
 					break;

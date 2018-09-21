@@ -896,7 +896,7 @@ if (isset($_GET['tab']) && in_array($_GET['tab'], array("sysadmin", "blocklists"
                                                                 </select>
                                                             </td>
                                                             <td><input type="text" name="AddFqdn"></td>
-                                                            <td><input type="text" name="AddIPv4"></td>
+                                                            <td><input type="text" name="AddValue"></td>
                                                             <td>
                                                                 <button class="btn btn-success btn-xs" type="submit" name="addHost">
                                                                     <span class="glyphicon glyphicon-plus"></span>
