@@ -372,7 +372,7 @@ function readAdlists()
 				}
 				if(isset($_POST["removeHost"]))
 				{
-					$fqdn = $_POST["key"];
+					$fqdn = $_POST["removeHost"];
 
 					if(!validFQDN($fqdn) && strlen($fqdn) > 0)
 					{
